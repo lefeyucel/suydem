@@ -4,64 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fourth of July</title>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
-    
     <style>
-        /* Genel Karanlık Tema */
+        /* Temel Ayarlar */
         body {
-            background-color: #0a0a0a;
-            color: #c5a880;
-            font-family: 'Courier Prime', monospace;
+            background-color: #000000;
+            color: #ffffff;
+            font-family: monospace;
             margin: 0;
             padding: 0;
             overflow-x: hidden;
         }
 
-        /* Başlangıç Ekranı (Müziği başlatmak için gerekli) */
+        /* 1. Başlangıç Ekranı - Görünmeme ihtimali sıfır */
         #start-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #0a0a0a;
+            background-color: #000000;
+            z-index: 9999;
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            flex-direction: column;
             cursor: pointer;
-            transition: opacity 1s ease;
         }
         
-        #start-screen p {
-            animation: pulse 2s infinite;
-            font-size: 1.2rem;
+        #start-btn {
+            border: 1px solid #ffffff;
+            padding: 20px 40px;
+            font-size: 18px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
 
-        @keyframes pulse {
-            0% { opacity: 0.5; }
-            50% { opacity: 1; }
-            100% { opacity: 0.5; }
-        }
-
-        /* Fotoğraf Galerisi (Scroll ile beliren) */
-        .gallery {
-            display: flex;
+        /* 2. Fotoğraf Galerisi */
+        #gallery {
+            display: none; /* Başlangıçta gizli, butona basınca açılacak */
             flex-direction: column;
             align-items: center;
-            gap: 100px;
-            padding: 100px 20px;
+            padding: 50px 0;
+            gap: 80px;
         }
 
-        .gallery img {
+        #gallery img {
+            max-width: 85%;
+            width: 350px;
+            border-radius: 5px;
+            filter: grayscale(30%);
+        }
+
+        /* 3. Gizli Tetikleyici (Firefly) */
+        #secret-trigger {
+            margin-top: 50px;
+            margin-bottom: 100px;
+            padding: 30px;
+            color: #222222; /* Çok koyu gri, sadece dikkatli bakan görür */
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* 4. Easter Egg Ekranı */
+        #easter-egg {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000000;
+            z-index: 10000;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        video {
             max-width: 90%;
-            width: 400px;
-            border-radius: 4px;
-            opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 2s ease, transform 2s ease;
-            filter: grayscale(40%) contrast(120%);
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            max-height: 50vh;
+            margin-bottom: 30px;
         }
 
-        .gallery img.visible {
-            opacity: 1;
-            transform:
-   
+        #message {
+            font-size: 20px;
+            font-style: italic;
+            text-align: center;
+            width: 80%;
+            min-height: 80px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Müzik -->
+    <audio id="bg-music" loop>
+        <source src="sarki.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- İlk Giriş Ekranı -->
+    <div id="start-screen" onclick="startSite()">
+        <div id="start-btn">İÇERİ GİRMEK İÇİN DOKUN</div>
+    </div>
+
+    <!-- Ana İçerik -->
+    <div id="gallery">
+        <img src="foto1.jpg" alt="Küçüklük 1">
+        <img src="foto2.jpg" alt="Küçüklük 2">
+        <img src="foto3.jpg" alt="Küçüklük 3">
+        
+        <div id="secret-trigger" onclick="startEasterEgg()">firefly</div>
+    </div>
+
+    <!-- Easter Egg (Video ve Mesaj) -->
+    <div id="easter-egg">
+        <video id="grandma-video" playsinline>
+            <source src="video.mp4" type="video/mp4">
+        </video>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        const finalMessage = "İyi ki doğdun güzel kızım... Seni her zaman izliyor ve çok seviyorum.";
+
+        // Siteyi başlatan fonksiyon
+        function startSite() {
+            // Başlangıç ekranını gizle, galeriyi göster
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('gallery').style.display = 'flex';
+            
+            // Müziği başlat
+            document.getElementById('bg-music').play();
+        }
+
+        // Easter Egg'i başlatan fonksiyon
+        function startEasterEgg() {
+            // Her şeyi gizle, sadece easter egg ekranını aç
+            document.getElementById('gallery').style.display = 'none';
+            document.getElementById('easter-egg').style.display = 'flex';
+            
+            // Müziği durdur, videoyu oynat
+            document.getElementById('bg-music').pause();
+            document.getElementById('grandma-video').play();
+
+            // Daktilo efekti
+            let i = 0;
+            function typeWriter() {
+                if (i < finalMessage.length) {
+                    document.getElementById('message').innerHTML += finalMessage.charAt(i);
+                    i++;
+                    setTimeout(typeWriter, 100);
+                }
+            }
+            
+            // Video başladıktan 1 saniye sonra yazıyı yazdırmaya başla
+            setTimeout(typeWriter, 1000);
+        }
+    </script>
+</body>
+</html>
