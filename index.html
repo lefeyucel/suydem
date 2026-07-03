@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fourth of July</title>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Genel Karanlık Tema */
+        body {
+            background-color: #0a0a0a;
+            color: #c5a880;
+            font-family: 'Courier Prime', monospace;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Başlangıç Ekranı (Müziği başlatmak için gerekli) */
+        #start-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            cursor: pointer;
+            transition: opacity 1s ease;
+        }
+        
+        #start-screen p {
+            animation: pulse 2s infinite;
+            font-size: 1.2rem;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        /* Fotoğraf Galerisi (Scroll ile beliren) */
+        .gallery {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 100px;
+            padding: 100px 20px;
+        }
+
+        .gallery img {
+            max-width: 90%;
+            width: 400px;
+            border-radius: 4px;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 2s ease, transform 2s ease;
+            filter: grayscale(40%) contrast(120%);
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .gallery img.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Easter Egg Tetikleyici (Mobilde tıklanabilmesi için) */
+        .secret-trigger {
+            text-align: center;
+            opacity: 0.05; /* Neredeyse görünmez */
+            cursor: pointer;
+            padding: 50px;
+            margin-bottom: 50px;
+            font-size: 0.9rem;
+        }
+
+        /* Easter Egg Ekranı (Tam Ekran Video ve Mesaj) */
+        #easter-egg-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #000;
+            display: none; /* Başlangıçta gizli */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+
+        #grandma-video {
+            max-width: 90%;
+            max-height: 50vh;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        #grandma-message {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #ececec;
+            text-align: center;
+            max-width: 80%;
+            min-height: 80px;
+            font-style: italic;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="sarki.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="start-screen" onclick="startExperience()">
+        <p>[ İçeri girmek için dokun ]</p>
+    </div>
+
+    <div class="gallery" id="main-content">
+        <img src="foto1.jpg" class="fade-item" alt="Küçüklük 1">
+        <img src="foto2.jpg" class="fade-item" alt="Küçüklük 2">
+        <img src="foto3.jpg" class="fade-item" alt="Küçüklük 3">
+        
+        <div class="secret-trigger" onclick="triggerEasterEgg()">firefly</div>
+    </div>
+
+    <div id="easter-egg-screen">
+        <video id="grandma-video" playsinline>
+            <source src="video.mp4" type="video/mp4">
+        </video>
+        <div id="grandma-message"></div>
+    </div>
+
+    <script>
+        const bgMusic = document.getElementById('bg-music');
+        const startScreen = document.getElementById('start-screen');
+        const easterEggScreen = document.getElementById('easter-egg-screen');
+        const video = document.getElementById('grandma-video');
+        const messageDiv = document.getElementById('grandma-message');
+
+        // Babaannenin ağzından daktilo ile yazılacak mesajı buraya gir
+        const finalMessage = "İyi ki doğdun güzel kızım... Seni her zaman izliyor ve çok seviyorum.";
+
+        // 1. Kullanıcı tıkladığında müziği başlat ve siteyi aç
+        function startExperience() {
+            bgMusic.volume = 0.6; // Ses seviyesi
+            bgMusic.play().catch(e => console.log("Otomatik oynatma engellendi"));
+            
+            startScreen.style.opacity = '0';
+            setTimeout(() => {
+                startScreen.style.display = 'none';
+            }, 1000);
+        }
+
+        // 2. Scroll yaptıkça fotoğrafların yavaşça belirmesi
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.fade-item').forEach(img => {
+            observer.observe(img);
+        });
+
+        // 3. Easter Egg Tetiklendiğinde Olacaklar
+        let isEasterEggTriggered = false;
+
+        function triggerEasterEgg() {
+            if(isEasterEggTriggered) return;
+            isEasterEggTriggered = true;
+
+            // Müziği yavaşça kıs (Fade-out)
+            let fadeOutInterval = setInterval(() => {
+                if (bgMusic.volume > 0.05) {
+                    bgMusic.volume -= 0.05;
+                } else {
+                    bgMusic.pause();
+                    clearInterval(fadeOutInterval);
+                }
+            }, 200);
+
+            // Siyah ekranı getir
+            easterEggScreen.style.display = 'flex';
+            
+            // CSS animasyonu için kısa bir gecikme
+            setTimeout(() => {
+                easterEggScreen.style.opacity = '1';
+            }, 100);
+
+            // 3 saniye karanlıkta bekletip videoyu oynat ve yazıyı yazdır
+            setTimeout(() => {
+                video.play();
+                typeWriterEffect(finalMessage, 0);
+            }, 3000);
+        }
+
+        // 4. Daktilo Efekti
+        function typeWriterEffect(text, index) {
+            if (index < text.length) {
+                messageDiv.innerHTML += text.charAt(index);
+                setTimeout(() => {
+                    typeWriterEffect(text, index + 1);
+                }, 100); // Harf yazım hızı (ms)
+            }
+        }
+    </script>
+</body>
+</html>
