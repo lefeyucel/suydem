@@ -15,7 +15,7 @@
             overflow-x: hidden;
         }
 
-        /* 1. Başlangıç Ekranı - Görünmeme ihtimali sıfır */
+        /* 1. Başlangıç Ekranı */
         #start-screen {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -38,7 +38,7 @@
 
         /* 2. Fotoğraf Galerisi */
         #gallery {
-            display: none; /* Başlangıçta gizli, butona basınca açılacak */
+            display: none;
             flex-direction: column;
             align-items: center;
             padding: 50px 0;
@@ -50,16 +50,18 @@
             width: 350px;
             border-radius: 5px;
             filter: grayscale(30%);
+            display: block;
         }
 
-        /* 3. Gizli Tetikleyici (Firefly) */
+        /* 3. Gizli Tetikleyici (suydeme mesaj) */
         #secret-trigger {
             margin-top: 50px;
             margin-bottom: 100px;
             padding: 30px;
-            color: #222222; /* Çok koyu gri, sadece dikkatli bakan görür */
+            color: #222222; /* Arka planda gizli durması için çok koyu gri */
             cursor: pointer;
             font-size: 14px;
+            text-transform: lowercase;
         }
 
         /* 4. Easter Egg Ekranı */
@@ -86,31 +88,28 @@
             text-align: center;
             width: 80%;
             min-height: 80px;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
 
-    <!-- Müzik -->
     <audio id="bg-music" loop>
         <source src="sarki.mp3" type="audio/mpeg">
     </audio>
 
-    <!-- İlk Giriş Ekranı -->
     <div id="start-screen" onclick="startSite()">
         <div id="start-btn">İÇERİ GİRMEK İÇİN DOKUN</div>
     </div>
 
-    <!-- Ana İçerik -->
     <div id="gallery">
-        <img src="foto1.jpg" alt="Küçüklük 1">
-        <img src="foto2.jpg" alt="Küçüklük 2">
-        <img src="foto3.jpg" alt="Küçüklük 3">
+        <img src="foto1.jpeg" alt="Küçüklük 1">
+        <img src="foto2.jpeg" alt="Küçüklük 2">
+        <img src="foto3.jpeg" alt="Küçüklük 3">
         
-        <div id="secret-trigger" onclick="startEasterEgg()">firefly</div>
+        <div id="secret-trigger" onclick="startEasterEgg()">suydeme mesaj</div>
     </div>
 
-    <!-- Easter Egg (Video ve Mesaj) -->
     <div id="easter-egg">
         <video id="grandma-video" playsinline>
             <source src="video.mp4" type="video/mp4">
@@ -121,27 +120,24 @@
     <script>
         const finalMessage = "İyi ki doğdun güzel kızım... Seni her zaman izliyor ve çok seviyorum.";
 
-        // Siteyi başlatan fonksiyon
         function startSite() {
-            // Başlangıç ekranını gizle, galeriyi göster
             document.getElementById('start-screen').style.display = 'none';
             document.getElementById('gallery').style.display = 'flex';
             
-            // Müziği başlat
-            document.getElementById('bg-music').play();
+            document.getElementById('bg-music').play().catch(err => {
+                console.log("Müzik çalma hatası:", err);
+            });
         }
 
-        // Easter Egg'i başlatan fonksiyon
         function startEasterEgg() {
-            // Her şeyi gizle, sadece easter egg ekranını aç
             document.getElementById('gallery').style.display = 'none';
             document.getElementById('easter-egg').style.display = 'flex';
             
-            // Müziği durdur, videoyu oynat
             document.getElementById('bg-music').pause();
-            document.getElementById('grandma-video').play();
+            document.getElementById('grandma-video').play().catch(err => {
+                console.log("Video oynatma hatası:", err);
+            });
 
-            // Daktilo efekti
             let i = 0;
             function typeWriter() {
                 if (i < finalMessage.length) {
@@ -151,10 +147,8 @@
                 }
             }
             
-            // Video başladıktan 1 saniye sonra yazıyı yazdırmaya başla
             setTimeout(typeWriter, 1000);
         }
     </script>
 </body>
 </html>
-  
